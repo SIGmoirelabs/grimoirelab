@@ -27,7 +27,6 @@ services:
       image: docker.elastic.co/elasticsearch/elasticsearch:8.5.2
       volumes:
         - ../elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-        - elasticsearch:/usr/share/elasticsearch/data
       ports:
         - 9200:9200
       environment:
@@ -38,7 +37,7 @@ services:
 
     kibiter:
       restart: on-failure:5
-      image: bitergia/kibiter:community-v6.8.6-3
+      image: kibana:8.5.2
       environment:
         - PROJECT_NAME=Demo
         - NODE_OPTIONS=--max-old-space-size=1000
@@ -49,8 +48,8 @@ services:
         - 5601:5601
 
     mordred:
+      build: ../docker
       restart: on-failure:5
-      image: grimoirelab/grimoirelab:latest
       volumes:
         - ../default-grimoirelab-settings/setup.cfg:/home/grimoire/conf/setup.cfg
         - ../default-grimoirelab-settings/projects.json:/home/grimoire/conf/projects.json
@@ -61,6 +60,3 @@ services:
         - mariadb
         - elasticsearch
       mem_limit: 4g
-
-volumes:
-  elasticsearch:
