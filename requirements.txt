@@ -6,7 +6,7 @@ perceval-opnfv==0.2.5
 perceval-puppet==0.2.5
 perceval-weblate==0.2.5
 kingarthur==0.2.5
-git+https://github.com/SIGmoirelabs/grimoirelab-elk.git@ddb1c1a89d62e954540d08a9307d90f28287b258
+git+https://github.com/SIGmoirelabs/grimoirelab-elk.git@master
 sortinghat==0.7.23
 kidash==0.5.2
 grimoirelab-panels==0.1.1
