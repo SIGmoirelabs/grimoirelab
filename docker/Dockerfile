@@ -56,7 +56,7 @@ RUN chmod 444 ${DEPLOY_USER_DIR}/aliases.json
 ADD https://raw.githubusercontent.com/chaoss/grimoirelab-sirmordred/master/menu.yaml ${DEPLOY_USER_DIR}/menu.yaml
 RUN chmod 444 ${DEPLOY_USER_DIR}/menu.yaml
 
-ADD stage ${DEPLOY_USER_DIR}/stage
+ADD docker/stage ${DEPLOY_USER_DIR}/stage
 RUN chmod 755 ${DEPLOY_USER_DIR}/stage
 
 USER ${DEPLOY_USER}
@@ -69,7 +69,7 @@ RUN mkdir -p ${CONF_DIR} && \
     echo ${GRIMOIRELAB_RELEASE} > ${DEPLOY_USER_DIR}/release && \
     echo "Installing and checking GrimoireLab Release"
 
-COPY ./requirements.txt ${CONF_DIR}/requirements.txt
+COPY requirements.txt ${CONF_DIR}/requirements.txt
 
 RUN sudo pip install -r ${CONF_DIR}/requirements.txt
 
