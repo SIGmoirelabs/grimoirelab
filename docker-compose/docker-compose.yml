@@ -24,13 +24,18 @@ services:
         - ../default-grimoirelab-settings/shdb.cfg:/home/grimoirelab/shdb.cfg
 
     elasticsearch:
-      image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.6
+      image: docker.elastic.co/elasticsearch/elasticsearch:8.5.2
       command: elasticsearch -Enetwork.bind_host=0.0.0.0 -Ehttp.max_content_length=2000mb
       ports:
         - 9200:9200
       environment:
         - ES_JAVA_OPTS=-Xms2g -Xmx2g
         - ANONYMOUS_USER=true
+        - discovery.type=single-node
+        - xpack.security.enabled=false
+        - ingest.geoip.downloader.enabled=false
+      volumes:
+        - elasticsearch:/usr/share/elasticsearch/data
 
     kibiter:
       restart: on-failure:5
@@ -45,8 +50,10 @@ services:
         - 5601:5601
 
     mordred:
+      build:
+        context: ../
+        dockerfile: docker/Dockerfile
       restart: on-failure:5
-      image: grimoirelab/grimoirelab:latest
       volumes:
         - ../default-grimoirelab-settings/setup.cfg:/home/grimoire/conf/setup.cfg
         - ../default-grimoirelab-settings/projects.json:/home/grimoire/conf/projects.json
@@ -57,3 +64,6 @@ services:
         - mariadb
         - elasticsearch
       mem_limit: 4g
+
+volumes:
+  elasticsearch:

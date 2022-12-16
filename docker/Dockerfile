@@ -56,7 +56,7 @@ RUN chmod 444 ${DEPLOY_USER_DIR}/aliases.json
 ADD https://raw.githubusercontent.com/chaoss/grimoirelab-sirmordred/master/menu.yaml ${DEPLOY_USER_DIR}/menu.yaml
 RUN chmod 444 ${DEPLOY_USER_DIR}/menu.yaml
 
-ADD stage ${DEPLOY_USER_DIR}/stage
+ADD docker/stage ${DEPLOY_USER_DIR}/stage
 RUN chmod 755 ${DEPLOY_USER_DIR}/stage
 
 USER ${DEPLOY_USER}
@@ -66,10 +66,11 @@ USER ${DEPLOY_USER}
 WORKDIR ${DEPLOY_USER_DIR}
 
 RUN mkdir -p ${CONF_DIR} && \
-    git clone -b ${GRIMOIRELAB_RELEASE} --depth 1 https://github.com/grimoirelab/grimoirelab.git && \
-    cp grimoirelab/requirements.txt ${CONF_DIR}/requirements.txt && \
     echo ${GRIMOIRELAB_RELEASE} > ${DEPLOY_USER_DIR}/release && \
     echo "Installing and checking GrimoireLab Release"
+
+COPY requirements.txt ${CONF_DIR}/requirements.txt
+
 RUN sudo pip install -r ${CONF_DIR}/requirements.txt
 
 HEALTHCHECK --interval=60s --timeout=6s --retries=1 CMD healthcheck.py -c ${CONF_DIR}/setup.cfg -s 'Exception in Task Manager' || exit 1
