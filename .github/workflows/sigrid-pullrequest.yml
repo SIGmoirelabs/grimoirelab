@@ -13,4 +13,4 @@ jobs:
           customer: utst
           system: initial
         env:
-          SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_TOKEN }}"
+          SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_ORG_TOKEN }}"
