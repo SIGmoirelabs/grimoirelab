@@ -9,7 +9,7 @@ ENV DEPLOY_USER grimoire
 ENV DEPLOY_USER_DIR /home/${DEPLOY_USER}
 ENV CONF_DIR ${DEPLOY_USER_DIR}/conf
 ENV SCRIPTS_DIR ${DEPLOY_USER_DIR}/scripts
-ENV GRIMOIRELAB_RELEASE "0.7.1"
+ENV GRIMOIRELAB_RELEASE "0.7.2-rc.1"
 
 # Initial user
 RUN useradd ${DEPLOY_USER} --create-home --shell /bin/bash
@@ -26,6 +26,7 @@ RUN apt-get update && \
         python3-dev \
         python3-gdbm \
         mariadb-client \
+        libmariadbclient-dev-compat \
         unzip curl wget sudo ssh \
         && \
     apt-get clean && \

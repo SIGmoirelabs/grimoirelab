@@ -46,6 +46,7 @@ jobs:
       module_repository: 'chaoss/grimoirelab-toolkit'
       module_directory: 'src/grimoirelab-toolkit'
       dependencies: ''
+      check_dependencies: false
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -62,6 +63,7 @@ jobs:
       module_repository: 'chaoss/grimoirelab-kidash'
       module_directory: 'src/grimoirelab-kidash'
       dependencies: ''
+      check_dependencies: false
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -69,6 +71,7 @@ jobs:
     name: Sortinghat
     needs:
       - variables-job
+      - grimoirelab-toolkit
     uses: ./.github/workflows/release-grimoirelab-component.yml
     with:
       git_email: ${{ needs.variables-job.outputs.git_email }}
@@ -77,7 +80,8 @@ jobs:
       module_name: 'sortinghat'
       module_repository: 'chaoss/grimoirelab-sortinghat'
       module_directory: 'src/grimoirelab-sortinghat'
-      dependencies: ''
+      dependencies: '${{ needs.grimoirelab-toolkit.outputs.package_version }}'
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -95,6 +99,7 @@ jobs:
       module_repository: 'chaoss/grimoirelab-cereslib'
       module_directory: 'src/grimoirelab-cereslib'
       dependencies: '${{ needs.grimoirelab-toolkit.outputs.package_version }}'
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -111,6 +116,7 @@ jobs:
       module_repository: 'chaoss/grimoirelab-sigils'
       module_directory: 'src/grimoirelab-sigils'
       dependencies: ''
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -128,6 +134,7 @@ jobs:
       module_repository: 'chaoss/grimoirelab-perceval'
       module_directory: 'src/grimoirelab-perceval'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -147,6 +154,7 @@ jobs:
       module_directory: 'src/grimoirelab-perceval-mozilla'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
       ${{ needs.grimoirelab-perceval.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -166,6 +174,7 @@ jobs:
       module_directory: 'src/grimoirelab-perceval-opnfv'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
       ${{ needs.grimoirelab-perceval.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -185,6 +194,7 @@ jobs:
       module_directory: 'src/grimoirelab-perceval-puppet'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
       ${{ needs.grimoirelab-perceval.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -204,25 +214,7 @@ jobs:
       module_directory: 'src/grimoirelab-perceval-weblate'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
       ${{ needs.grimoirelab-perceval.outputs.package_version }}"
-    secrets:
-      access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
-
-  grimoirelab-kingarthur:
-    name: Kingarthur
-    needs:
-      - variables-job
-      - grimoirelab-toolkit
-      - grimoirelab-perceval
-    uses: ./.github/workflows/release-grimoirelab-component.yml
-    with:
-      git_email: ${{ needs.variables-job.outputs.git_email }}
-      git_name: ${{ needs.variables-job.outputs.git_name }}
-      release_candidate: ${{ needs.variables-job.outputs.release_candidate }}
-      module_name: 'kingarthur'
-      module_repository: 'chaoss/grimoirelab-kingarthur'
-      module_directory: 'src/grimoirelab-kingarthur'
-      dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
-      ${{ needs.grimoirelab-perceval.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -242,6 +234,7 @@ jobs:
       module_directory: 'src/grimoirelab-graal'
       dependencies: "${{ needs.grimoirelab-toolkit.outputs.package_version }} \
       ${{ needs.grimoirelab-perceval.outputs.package_version }}"
+      check_dependencies: true
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -275,6 +268,7 @@ jobs:
       ${{ needs.grimoirelab-perceval-weblate.outputs.package_version }} \
       ${{ needs.grimoirelab-graal.outputs.package_version }} \
       ${{ needs.grimoirelab-sortinghat.outputs.package_version }}"
+      check_dependencies: false
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -314,6 +308,7 @@ jobs:
       ${{ needs.grimoirelab-perceval-weblate.outputs.package_version }} \
       ${{ needs.grimoirelab-graal.outputs.package_version }} \
       ${{ needs.grimoirelab-cereslib.outputs.package_version }}"
+      check_dependencies: false
     secrets:
       access_token: ${{ secrets.GRIMOIRELAB_BUILD_TOKEN }}
 
@@ -333,7 +328,6 @@ jobs:
       - grimoirelab-perceval-opnfv
       - grimoirelab-perceval-puppet
       - grimoirelab-perceval-weblate
-      - grimoirelab-kingarthur
       - grimoirelab-graal
       - grimoirelab-elk
       - grimoirelab-sirmordred
@@ -365,60 +359,94 @@ jobs:
       - id: check-dependencies
         name: Check if package dependencies exist
         run: |
-          dependencies="${{ needs.grimoirelab-toolkit.outputs.package_version }} \
-          ${{ needs.grimoirelab-sortinghat.outputs.package_version }} \
-          ${{ needs.grimoirelab-elk.outputs.package_version }} \
-          ${{ needs.grimoirelab-kidash.outputs.package_version }} \
-          ${{ needs.grimoirelab-sigils.outputs.package_version }} \
-          ${{ needs.grimoirelab-perceval.outputs.package_version }} \
-          ${{ needs.grimoirelab-perceval-mozilla.outputs.package_version }} \
-          ${{ needs.grimoirelab-perceval-opnfv.outputs.package_version }} \
-          ${{ needs.grimoirelab-perceval-puppet.outputs.package_version }} \
-          ${{ needs.grimoirelab-perceval-weblate.outputs.package_version }} \
-          ${{ needs.grimoirelab-graal.outputs.package_version }} \
-          ${{ needs.grimoirelab-cereslib.outputs.package_version }} \
-          ${{ needs.grimoirelab-kingarthur.outputs.package_version }} \
-          ${{ needs.grimoirelab-sirmordred.outputs.package_version }}"
-          if [ ! -z "$dependencies" ]
-          then
-            timeout=5
-            for i in $(seq 5)
-            do
-              poetry add --lock --no-cache --dry-run $dependencies && exit 0
-              sleep $timeout
-              timeout=$(( timeout * 2 ))
-            done
-            exit 1
-          fi
+          sleep 180
 
       - id: semverup
         name: Update version number
+        env:
+          grimoirelab_toolkit_version: "${{ needs.grimoirelab-toolkit.outputs.version}}"
+          kidash_version: "${{ needs.grimoirelab-kidash.outputs.version}}"
+          sortinghat_version: "${{ needs.grimoirelab-sortinghat.outputs.version}}"
+          cereslib_version: "${{ needs.grimoirelab-cereslib.outputs.version}}"
+          grimoirelab_panels_version: "${{ needs.grimoirelab-sigils.outputs.version}}"
+          perceval_version: "${{ needs.grimoirelab-perceval.outputs.version}}"
+          perceval_mozilla_version: "${{ needs.grimoirelab-perceval-mozilla.outputs.version}}"
+          perceval_opnfv_version: "${{ needs.grimoirelab-perceval-opnfv.outputs.version}}"
+          perceval_puppet_version: "${{ needs.grimoirelab-perceval-puppet.outputs.version}}"
+          perceval_weblate_version: "${{ needs.grimoirelab-perceval-weblate.outputs.version}}"
+          graal_version: "${{ needs.grimoirelab-graal.outputs.version}}"
+          grimoire_elk_version: "${{ needs.grimoirelab-elk.outputs.version}}"
+          sirmordred_version: "${{ needs.grimoirelab-sirmordred.outputs.version}}"
         run: |
-          # Check what version to update: patch, minor or major
           BUMP_MAJOR=4
           BUMP_MINOR=2
+          BUMP_PATCH=1
+          NO_BUMP=0
+          
+          function cmp_version () {
+            old=$1
+            old=${old%-*}
+            old=${old%rc*}
+            current=$2
+            current=${current%-*}
+            current=${current%rc*}
+            
+            currentArr=(${current//./ })
+            oldArr=(${old//./ })
+            
+            if [ ${currentArr[0]} -gt ${oldArr[0]} ]
+            then
+              echo $BUMP_MAJOR
+            elif [ ${currentArr[1]} -gt ${oldArr[1]} ]
+            then
+              echo $BUMP_MINOR
+            elif [ ${currentArr[2]} -gt ${oldArr[2]} ]
+            then
+              echo $BUMP_PATCH
+            else
+              echo $NO_BUMP
+            fi
+          }
+          
+          function old_pkg_version () {
+            pkg=$1
+            poetry show -l $pkg | grep version | head -1 | awk '{print $3}'
+          }
+          
+          pkgs=("grimoirelab-toolkit"
+          "kidash"
+          "sortinghat"
+          "cereslib"
+          "grimoirelab-panels"
+          "perceval"
+          "perceval-mozilla"
+          "perceval-opnfv"
+          "perceval-puppet"
+          "perceval-weblate"
+          "graal"
+          "grimoire-elk"
+          "sirmordred")
+          
           if [ ${{ inputs.release_candidate }} == 'true' ]
           then
             rcArg='--pre-release'
           else
             rcArg=''
           fi
-          versionUpdated=$((
-          ${{ needs.grimoirelab-toolkit.outputs.changed_version }} |
-          ${{ needs.grimoirelab-perceval.outputs.changed_version }} |
-          ${{ needs.grimoirelab-perceval-mozilla.outputs.changed_version }} |
-          ${{ needs.grimoirelab-perceval-opnfv.outputs.changed_version }} |
-          ${{ needs.grimoirelab-perceval-puppet.outputs.changed_version }} |
-          ${{ needs.grimoirelab-perceval-weblate.outputs.changed_version }} |
-          ${{ needs.grimoirelab-kingarthur.outputs.changed_version }} |
-          ${{ needs.grimoirelab-elk.outputs.changed_version }} |
-          ${{ needs.grimoirelab-sortinghat.outputs.changed_version }} |
-          ${{ needs.grimoirelab-kidash.outputs.changed_version }} |
-          ${{ needs.grimoirelab-sigils.outputs.changed_version }} |
-          ${{ needs.grimoirelab-sirmordred.outputs.changed_version }} |
-          ${{ needs.grimoirelab-cereslib.outputs.changed_version }} |
-          ${{ needs.grimoirelab-graal.outputs.changed_version }}))
-
+          
+          versionUpdated=0
+          for pkg in "${pkgs[@]}"
+          do
+            pkg_ver="${pkg/-/_}_version"
+            current=${!pkg_ver}
+            old=$(old_pkg_version "$pkg")
+            output=$(cmp_version "$old" "$current")
+            echo "$pkg updated from $old to $current, changed: $output"
+            versionUpdated=$(( versionUpdated | output ))
+          done
+          
+          echo $versionUpdated
+          
           if [ $((versionUpdated & $BUMP_MAJOR )) -ne 0 ]
           then
             version=$(semverup --bump-version=major $rcArg)
@@ -445,7 +473,6 @@ jobs:
               "${{ needs.grimoirelab-perceval-opnfv.outputs.package_version }}" \
               "${{ needs.grimoirelab-perceval-puppet.outputs.package_version }}" \
               "${{ needs.grimoirelab-perceval-weblate.outputs.package_version }}" \
-              "${{ needs.grimoirelab-kingarthur.outputs.package_version }}" \
               "${{ needs.grimoirelab-graal.outputs.package_version }}" \
               "${{ needs.grimoirelab-elk.outputs.package_version }}" \
               "${{ needs.grimoirelab-sirmordred.outputs.package_version }}"
@@ -458,7 +485,6 @@ jobs:
           perceval-opnfv==${{ needs.grimoirelab-perceval-opnfv.outputs.version }}
           perceval-puppet==${{ needs.grimoirelab-perceval-puppet.outputs.version }}
           perceval-weblate==${{ needs.grimoirelab-perceval-weblate.outputs.version }}
-          kingarthur==${{ needs.grimoirelab-kingarthur.outputs.version }}
           grimoire-elk==${{ needs.grimoirelab-elk.outputs.version }}
           sortinghat==${{ needs.grimoirelab-sortinghat.outputs.version }}
           kidash==${{ needs.grimoirelab-kidash.outputs.version }}
@@ -486,7 +512,6 @@ jobs:
           grimoirelab_perceval_opnfv_notes: "${{ needs.grimoirelab-perceval-opnfv.outputs.notes}}"
           grimoirelab_perceval_puppet_notes: "${{ needs.grimoirelab-perceval-puppet.outputs.notes}}"
           grimoirelab_perceval_weblate_notes: "${{ needs.grimoirelab-perceval-weblate.outputs.notes}}"
-          grimoirelab_kingarthur_notes: "${{ needs.grimoirelab-kingarthur.outputs.notes}}"
           grimoirelab_graal_notes: "${{ needs.grimoirelab-graal.outputs.notes}}"
           grimoirelab_elk_notes: "${{ needs.grimoirelab-elk.outputs.notes}}"
           grimoirelab_sirmordred_notes: "${{ needs.grimoirelab-sirmordred.outputs.notes}}"
@@ -509,7 +534,6 @@ jobs:
           $grimoirelab_perceval_opnfv_notes
           $grimoirelab_perceval_puppet_notes
           $grimoirelab_perceval_weblate_notes
-          $grimoirelab_kingarthur_notes
           $grimoirelab_graal_notes
           $grimoirelab_elk_notes
           $grimoirelab_sirmordred_notes
@@ -530,7 +554,6 @@ jobs:
           notes_perceval_opnfv: "${{ needs.grimoirelab-perceval-opnfv.outputs.notes}}"
           notes_perceval_puppet: "${{ needs.grimoirelab-perceval-puppet.outputs.notes}}"
           notes_perceval_weblate: "${{ needs.grimoirelab-perceval-weblate.outputs.notes}}"
-          notes_kingarthur: "${{ needs.grimoirelab-kingarthur.outputs.notes}}"
           notes_graal: "${{ needs.grimoirelab-graal.outputs.notes}}"
           notes_grimoire_elk: "${{ needs.grimoirelab-elk.outputs.notes}}"
           notes_sirmordred: "${{ needs.grimoirelab-sirmordred.outputs.notes}}"
@@ -544,7 +567,6 @@ jobs:
           version_perceval_opnfv: "${{ needs.grimoirelab-perceval-opnfv.outputs.version }}"
           version_perceval_puppet: "${{ needs.grimoirelab-perceval-puppet.outputs.version }}"
           version_perceval_weblate: "${{ needs.grimoirelab-perceval-weblate.outputs.version }}"
-          version_kingarthur: "${{ needs.grimoirelab-kingarthur.outputs.version }}"
           version_graal: "${{ needs.grimoirelab-graal.outputs.version }}"
           version_grimoire_elk: "${{ needs.grimoirelab-elk.outputs.version }}"
           version_sirmordred: "${{ needs.grimoirelab-sirmordred.outputs.version }}"
@@ -566,7 +588,6 @@ jobs:
           perceval_opnfv
           perceval_puppet
           perceval_weblate
-          kingarthur
           graal
           grimoire_elk
           sirmordred)
